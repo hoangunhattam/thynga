@@ -563,6 +563,105 @@
     color: var(--muted);
   }
 
+  /* Nút "Xong" trong hộp thời gian */
+  .time-done {
+    display: block;
+    width: 100%;
+    height: 42px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--green);
+    color: var(--on-accent);
+    font-weight: 600;
+  }
+
+  /* Lặp lại (việc hằng ngày) */
+  .sub-label { font-size: 14px; font-weight: 600; color: var(--muted); margin: 16px 0 8px; }
+  .wd-chips { display: flex; gap: 6px; margin-top: 10px; }
+  .wd-chips .chip { flex: 1; padding: 0; justify-content: center; --c: var(--green); }
+  .habit-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .habit-row div { flex: 1; min-width: 0; }
+  .habit-row b { display: block; font-weight: 600; color: var(--c, var(--text)); word-break: break-word; }
+  .habit-row small { color: var(--muted); font-size: 13px; }
+  .habit-row button {
+    flex-shrink: 0;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
+    color: var(--danger);
+    font-size: 14px;
+  }
+
+  /* Ngày / Tuần / Tháng */
+  .span-tabs { margin-bottom: 14px; }
+  .range-hint { font-size: 13px; color: var(--muted); text-align: center; margin: -4px 0 12px; }
+
+  /* Xem theo tuần */
+  .wk-day {
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .wk-day.today { border-color: var(--green); }
+  .wk-day.past { opacity: .7; }
+  .wk-head { display: flex; align-items: baseline; gap: 8px; }
+  .wk-head b { font-size: 16px; }
+  .wk-head span { font-size: 14px; color: var(--muted); }
+  .wk-head .wk-count { margin-left: auto; font-size: 13px; }
+  .wk-tasks { list-style: none; margin-top: 6px; }
+  .wk-tasks li {
+    display: flex;
+    gap: 6px;
+    font-size: 15px;
+    padding: 2px 0;
+    color: var(--c, var(--text));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wk-tasks li.done { opacity: .45; text-decoration: line-through; }
+  .wk-tasks small { color: var(--muted); font-size: 13px; flex-shrink: 0; }
+  .wk-more, .wk-empty { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Xem theo tháng */
+  .month {
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 18px;
+    padding: 10px 6px;
+  }
+  .m-row { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .m-wd { text-align: center; font-size: 12px; color: var(--muted); padding: 4px 0 8px; font-weight: 600; }
+  .m-cell {
+    min-height: 62px;
+    margin: 2px;
+    padding: 4px 2px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .m-cell.out { opacity: .35; }
+  .m-num { font-size: 15px; width: 28px; height: 28px; line-height: 28px; margin: 0 auto; border-radius: 50%; }
+  .m-cell.today .m-num { background: var(--green); color: var(--on-accent); font-weight: 700; }
+  .m-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin-top: 4px; }
+  .m-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--c, #B9C2BD); }
+  .m-dots i.done { opacity: .35; }
+  .m-more { font-size: 10px; color: var(--muted); line-height: 1.2; }
+  .range-sum { margin-top: 16px; text-align: center; font-size: 15px; color: var(--muted); }
+
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -594,6 +693,18 @@
     </div>
   </header>
 
+  <!-- Xem theo Ngày / Tuần / Tháng -->
+  <div class="seg span-tabs" id="spanTabs">
+    <button type="button" data-span="day">Ngày</button>
+    <button type="button" data-span="week">Tuần</button>
+    <button type="button" data-span="month">Tháng</button>
+  </div>
+
+  <!-- Xem theo tuần / tháng -->
+  <div id="rangeView" hidden></div>
+
+  <!-- Xem theo ngày -->
+  <div id="dayView">
   <form class="add" id="addForm" autocomplete="off">
     <input id="newTask" type="text" placeholder="＋ Thêm công việc" enterkeyhint="done" autofocus>
     <button type="submit" aria-label="Thêm">＋</button>
@@ -618,6 +729,7 @@
     <p id="progressText"></p>
     <div class="totals" id="totals"></div>
   </div>
+  </div><!-- /dayView -->
 
 </div>
 
@@ -667,6 +779,7 @@
   const DATA_KEY = 'checklist-data-v1';
   const SETTINGS_KEY = 'checklist-settings-v1';
   const NOTES_KEY = 'checklist-notes-v1';
+  const HABITS_KEY = 'checklist-habits-v1';
 
   // Màu nhóm mặc định: tông dịu, vẫn đủ đậm để đọc chữ
   const DEFAULT_CATEGORIES = [
@@ -708,6 +821,8 @@
   let data = load(DATA_KEY, {});
   let settings = load(SETTINGS_KEY, { categories: DEFAULT_CATEGORIES, lastCat: null });
   let notes = load(NOTES_KEY, []);
+  // Việc lặp lại: [{ id, text, cat, start, end, duration, days: [0..6], from, until, skip: [] }]
+  let habits = load(HABITS_KEY, []);
   settings.view = settings.view || 'list';
 
   // Nâng cấp một lần: đổi màu nhóm mặc định cũ (đậm) sang tông dịu, bật chủ đề Xanh sage
@@ -741,6 +856,7 @@
   const saveData = () => store(DATA_KEY, data);
   const saveSettings = () => store(SETTINGS_KEY, settings);
   const saveNotes = () => store(NOTES_KEY, notes);
+  const saveHabits = () => store(HABITS_KEY, habits);
   const findCat = id => settings.categories.find(c => c.id === id);
 
   /* =========================================================
@@ -833,7 +949,86 @@
   }
 
   const patchTask = (id, patch) => setTasks(getTasks().map(t => t.id === id ? { ...t, ...patch } : t));
-  const deleteTask = id => setTasks(getTasks().filter(t => t.id !== id));
+  function deleteTask(id) {
+    const t = getTasks().find(x => x.id === id);
+    const h = t && t.habit && findHabit(t.habit);
+    if (h && !h.skip.includes(currentKey)) { h.skip.push(currentKey); saveHabits(); }
+    setTasks(getTasks().filter(x => x.id !== id));
+  }
+
+  /* ---------- VIỆC LẶP LẠI ----------
+     Mỗi việc lặp lại là một "mẫu". Khi mở một ngày (từ hôm nay trở đi),
+     app tự thêm việc theo mẫu nếu đúng thứ đã chọn.
+     Xoá việc lặp ở ngày nào -> chỉ bỏ ngày đó (ghi vào skip), các ngày khác vẫn còn.
+     Ngày đã qua không tự thêm (để không làm rối lịch sử). */
+  let seq = 0;
+  const uid = () => Date.now() * 100 + (seq++ % 100);
+  const WD = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];          // hiển thị từ Thứ Hai
+  const findHabit = id => habits.find(h => h.id === id);
+
+  function daysLabel(days) {
+    if (days.length === 7) return 'Mỗi ngày';
+    const sorted = WD_ORDER.filter(d => days.includes(d));
+    if (sorted.join() === '1,2,3,4,5') return 'T2 – T6';
+    return sorted.map(d => WD[d]).join(', ');
+  }
+
+  // Tự thêm việc lặp lại vào ngày `key` (trả về true nếu có thay đổi)
+  function ensureHabits(key) {
+    if (key < todayKey()) return false;
+    const wd = fromKey(key).getDay();
+    let list = data[key] || [];
+    let changed = false;
+    habits.forEach(h => {
+      if (key < h.from || (h.until && key > h.until)) return;
+      if (!h.days.includes(wd) || h.skip.includes(key)) return;
+      if (list.some(t => t.habit === h.id)) return;
+      list = [...list, { id: uid(), text: h.text, completed: false, cat: h.cat,
+                         start: h.start, end: h.end, duration: h.duration, habit: h.id }];
+      changed = true;
+    });
+    if (changed) data[key] = list;
+    return changed;
+  }
+
+  // Ngừng lặp từ ngày `key` trở đi (việc chưa làm ở các ngày sau bị gỡ)
+  function stopHabit(h, key) {
+    h.until = shiftKey(key, -1);
+    Object.keys(data).forEach(k => {
+      if (k < key) return;
+      const kept = data[k].filter(t => !(t.habit === h.id && !t.completed));
+      if (kept.length) data[k] = kept; else delete data[k];
+    });
+    habits = habits.filter(x => !(x.until && x.until < x.from));   // chưa dùng ngày nào thì xoá hẳn
+    habits.forEach(x => x.skip = x.skip.filter(k => k >= todayKey()));
+    saveHabits();
+    saveData();
+  }
+
+  // Cập nhật mẫu + các ngày sau (chưa làm) khi sửa một việc lặp lại
+  function updateHabit(h, fields, fromDay) {
+    Object.assign(h, fields);
+    Object.keys(data).forEach(k => {
+      if (k <= fromDay) return;
+      const wdOk = h.days.includes(fromKey(k).getDay());
+      data[k] = data[k]
+        .filter(t => !(t.habit === h.id && !t.completed && !wdOk))
+        .map(t => t.habit === h.id && !t.completed
+          ? { ...t, text: h.text, cat: h.cat, start: h.start, end: h.end, duration: h.duration } : t);
+      if (!data[k].length) delete data[k];
+    });
+    saveHabits();
+    saveData();
+  }
+
+  function createHabit(task, days, fromDay) {
+    const h = { id: uid(), text: task.text, cat: task.cat, start: task.start, end: task.end,
+                duration: task.duration, days, from: fromDay, until: null, skip: [] };
+    habits.push(h);
+    saveHabits();
+    return h;
+  }
 
   // Chuyển trạng thái của ô chọn nhóm/thời gian thành các trường của công việc
   function fieldsToTask(st) {
@@ -860,7 +1055,8 @@
   }
 
   // showCats = false: ẩn hàng chọn nhóm (dùng ở ô thêm việc cho gọn)
-  function makeFields(el, st, showHint, showCats = true) {
+  // isAdd = true: khối ở ô thêm việc (có nút "Xong" và chip "Lặp lại")
+  function makeFields(el, st, showHint, showCats = true, isAdd = false) {
     function render() {
       const hasTime = timeLabel(st) !== 'Thời gian';
       el.innerHTML = `
@@ -870,6 +1066,7 @@
               <i></i>${esc(c.name)}
             </button>`).join('')}
           <button type="button" class="chip time ${hasTime ? 'on' : ''}" data-act="time">⏱ ${timeLabel(st)}</button>
+          ${isAdd ? `<button type="button" class="chip time ${st.repeat ? 'on' : ''}" data-act="repeat">🔁 ${st.repeat ? 'Mỗi ngày' : 'Lặp lại'}</button>` : ''}
         </div>
         ${st.showTime ? `
         <div class="time-box">
@@ -893,6 +1090,7 @@
               <span>phút</span>
             </div>` : ''}
           ${showHint ? `<p class="hint">Mẹo: gõ thẳng “8h-9h30 Soạn bài” hoặc “Đọc sách 45p”.</p>` : ''}
+          ${isAdd ? `<button type="button" class="time-done" data-act="done">Xong</button>` : ''}
         </div>` : ''}`;
     }
 
@@ -904,12 +1102,27 @@
         st.showTime = !st.showTime;
         if (st.showTime && st.mode === 'none') st.mode = 'range';
       }
+      else if (b.dataset.act === 'done') st.showTime = false;
+      else if (b.dataset.act === 'repeat') st.repeat = !st.repeat;
       else if (b.dataset.mode) st.mode = b.dataset.mode;
       else if (b.dataset.dur) st.duration = b.dataset.dur;
       render();
     });
-    el.addEventListener('input', e => { if (e.target.dataset.f) st[e.target.dataset.f] = e.target.value; });
-    el.addEventListener('change', e => { if (e.target.dataset.f) render(); });
+    // Khi chọn giờ: chỉ cập nhật nhãn ⏱, KHÔNG vẽ lại khối
+    // (vẽ lại sẽ làm bộ chọn giờ của điện thoại tự đóng khi chưa chọn xong)
+    const updateLabel = () => {
+      const chip = el.querySelector('[data-act=time]');
+      if (!chip) return;
+      chip.textContent = '⏱ ' + timeLabel(st);
+      chip.classList.toggle('on', timeLabel(st) !== 'Thời gian');
+    };
+    const onValue = e => {
+      if (!e.target.dataset.f) return;
+      st[e.target.dataset.f] = e.target.value;
+      updateLabel();
+    };
+    el.addEventListener('input', onValue);
+    el.addEventListener('change', onValue);
 
     render();
     return { render };
@@ -932,6 +1145,8 @@
     if (t.start && t.end) parts.push(`${t.start} – ${t.end} (${fmtDuration(taskMinutes(t))})`);
     else if (t.start) parts.push(`từ ${t.start}`);
     else if (t.duration) parts.push(fmtDuration(t.duration));
+    const h = t.habit && findHabit(t.habit);
+    if (h) parts.unshift('🔁 ' + daysLabel(h.days));
     return parts.join(' · ');
   }
 
@@ -1045,7 +1260,7 @@
   }
 
   // Tổng thời gian theo từng nhóm
-  function renderTotals(tasks) {
+  function totalsHTML(tasks) {
     const sums = new Map();
     tasks.forEach(t => {
       const min = taskMinutes(t);
@@ -1058,12 +1273,127 @@
       if (sums.has(c.id)) parts.push(`<span style="--c:${c.color}"><i></i>${esc(c.name)} <b>${fmtDuration(sums.get(c.id))}</b></span>`);
     });
     if (sums.has('')) parts.push(`<span style="--c:#C4C9C6"><i></i>Chưa phân nhóm <b>${fmtDuration(sums.get(''))}</b></span>`);
-    $('totals').innerHTML = parts.join('');
+    return parts.join('');
+  }
+  const renderTotals = tasks => { $('totals').innerHTML = totalsHTML(tasks); };
+
+  /* ---------- Tuần / Tháng ---------- */
+  let span = 'day';   // 'day' | 'week' | 'month' — mỗi lần mở app luôn vào xem Ngày
+
+  const weekStart = key => { const d = fromKey(key); return shiftKey(key, -((d.getDay() + 6) % 7)); };
+  const monthKey = (key, add) => { const d = fromKey(key); return toKey(new Date(d.getFullYear(), d.getMonth() + add, 1)); };
+  const shortDay = key => { const d = fromKey(key); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`; };
+
+  function rangeSummary(keys) {
+    const all = keys.flatMap(k => data[k] || []);
+    const done = all.filter(t => t.completed).length;
+    const total = all.reduce((s, t) => s + taskMinutes(t), 0);
+    if (!all.length) return '<p class="range-sum">Chưa có công việc</p>';
+    return `<p class="range-sum">${done} / ${all.length} hoàn thành${total ? ' · Tổng ' + fmtDuration(total) : ''}</p>
+            <div class="totals">${totalsHTML(all)}</div>`;
+  }
+
+  function renderWeek() {
+    const start = weekStart(currentKey);
+    const keys = [...Array(7)].map((_, i) => shiftKey(start, i));
+    let changed = false;
+    keys.forEach(k => { if (ensureHabits(k)) changed = true; });
+    if (changed) saveData();
+    const today = todayKey();
+
+    const d0 = fromKey(start), d6 = fromKey(keys[6]);
+    $('dateText').textContent = `${shortDay(start)} – ${shortDay(keys[6])}/${d6.getFullYear()}`;
+    const w = Math.round((fromKey(start) - fromKey(weekStart(today))) / (7 * 86400000));
+    $('relText').textContent = w === 0 ? 'Tuần này' : w === -1 ? 'Tuần trước' : w === 1 ? 'Tuần sau' :
+                               w > 0 ? `${w} tuần nữa` : `${-w} tuần trước`;
+    $('prevBtn').textContent = '‹ Tuần trước';
+    $('nextBtn').textContent = 'Tuần sau ›';
+    $('todayBtn').textContent = 'Tuần này';
+    $('todayBtn').hidden = w === 0;
+
+    $('rangeView').innerHTML = '<p class="range-hint">Chạm vào một ngày để xem chi tiết và thêm việc</p>' +
+      keys.map(k => {
+        const d = fromKey(k);
+        const tasks = sortTasks(data[k] || []);
+        const done = tasks.filter(t => t.completed).length;
+        const shown = tasks.slice(0, 6);
+        return `
+          <div class="wk-day ${k === today ? 'today' : ''} ${k < today ? 'past' : ''}" data-key="${k}">
+            <div class="wk-head">
+              <b>${WEEKDAYS[d.getDay()]}</b><span>${shortDay(k)}</span>
+              ${tasks.length ? `<span class="wk-count">${done}/${tasks.length}</span>` : ''}
+            </div>
+            ${tasks.length ? `<ul class="wk-tasks">${shown.map(t => {
+              const cat = findCat(t.cat);
+              return `<li class="${t.completed ? 'done' : ''}" ${cat ? `style="--c:${cat.color}"` : ''}>
+                        ${t.start ? `<small>${t.start}</small>` : ''}${esc(t.text)}</li>`;
+            }).join('')}</ul>
+            ${tasks.length > shown.length ? `<p class="wk-more">+ ${tasks.length - shown.length} việc nữa</p>` : ''}`
+            : '<p class="wk-empty">Trống — chạm để thêm việc</p>'}
+          </div>`;
+      }).join('') + rangeSummary(keys);
+  }
+
+  function renderMonth() {
+    const first = monthKey(currentKey, 0);
+    const d1 = fromKey(first);
+    const gridStart = weekStart(first);
+    const nextMonth = monthKey(currentKey, 1);
+    const keys = [];
+    for (let k = gridStart; k < nextMonth || keys.length % 7; k = shiftKey(k, 1)) keys.push(k);
+    const inMonth = keys.filter(k => k >= first && k < nextMonth);
+    let changed = false;
+    inMonth.forEach(k => { if (ensureHabits(k)) changed = true; });
+    if (changed) saveData();
+    const today = todayKey();
+
+    $('dateText').textContent = `Tháng ${d1.getMonth() + 1}, ${d1.getFullYear()}`;
+    const t = fromKey(today);
+    const m = (d1.getFullYear() - t.getFullYear()) * 12 + d1.getMonth() - t.getMonth();
+    $('relText').textContent = m === 0 ? 'Tháng này' : m === -1 ? 'Tháng trước' : m === 1 ? 'Tháng sau' :
+                               m > 0 ? `${m} tháng nữa` : `${-m} tháng trước`;
+    $('prevBtn').textContent = '‹ Tháng trước';
+    $('nextBtn').textContent = 'Tháng sau ›';
+    $('todayBtn').textContent = 'Tháng này';
+    $('todayBtn').hidden = m === 0;
+
+    $('rangeView').innerHTML = `
+      <p class="range-hint">Chạm vào một ngày để xem chi tiết và thêm việc</p>
+      <div class="month">
+        <div class="m-row">${WD_ORDER.map(i => `<div class="m-wd">${WD[i]}</div>`).join('')}</div>
+        <div class="m-row">
+          ${keys.map(k => {
+            const tasks = sortTasks(data[k] || []);
+            const dots = tasks.slice(0, 6).map(x => {
+              const cat = findCat(x.cat);
+              return `<i class="${x.completed ? 'done' : ''}" ${cat ? `style="--c:${cat.color}"` : ''}></i>`;
+            }).join('');
+            return `
+              <div class="m-cell ${k === today ? 'today' : ''} ${k < first || k >= nextMonth ? 'out' : ''}" data-key="${k}">
+                <div class="m-num">${fromKey(k).getDate()}</div>
+                <div class="m-dots">${dots}</div>
+                ${tasks.length > 6 ? `<div class="m-more">+${tasks.length - 6}</div>` : ''}
+              </div>`;
+          }).join('')}
+        </div>
+      </div>` + rangeSummary(inMonth);
   }
 
   function render() {
+    document.querySelectorAll('#spanTabs button').forEach(b =>
+      b.classList.toggle('on', b.dataset.span === span));
+    $('dayView').hidden = span !== 'day';
+    $('rangeView').hidden = span === 'day';
+    $('datePicker').value = currentKey;
+    if (span === 'week') return renderWeek();
+    if (span === 'month') return renderMonth();
+
+    // Tự thêm việc lặp lại cho ngày đang xem
+    if (ensureHabits(currentKey)) saveData();
+
     const diff = daysFromToday(currentKey);
     const d = fromKey(currentKey);
+    $('todayBtn').textContent = 'Hôm nay';
 
     $('dateText').textContent =
       `${WEEKDAYS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -1115,17 +1445,34 @@
     render();
   });
 
+  $('spanTabs').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    span = b.dataset.span;
+    render();
+    window.scrollTo(0, 0);
+  });
+
+  // Chạm một ngày trong Tuần/Tháng -> mở ngày đó
+  $('rangeView').addEventListener('click', e => {
+    const el = e.target.closest('[data-key]');
+    if (!el) return;
+    span = 'day';
+    goTo(el.dataset.key);
+    window.scrollTo(0, 0);
+  });
+
   // Vạch "bây giờ" trên dòng thời gian tự dịch chuyển mỗi phút
   setInterval(() => {
-    if (settings.view === 'timeline' && $('backdrop').hidden && !$('planView').hidden) render();
+    if (span === 'day' && settings.view === 'timeline' && $('backdrop').hidden && !$('planView').hidden) render();
   }, 60000);
 
   /* =========================================================
      7. THÊM VIỆC
      ========================================================= */
   // Việc mới chưa có nhóm; chạm vào việc để chọn nhóm (màu chữ)
-  const addState = { cat: null, mode: 'none', start: '', end: '', duration: '', showTime: false };
-  const addFields = makeFields($('addFields'), addState, true, false);
+  const addState = { cat: null, mode: 'none', start: '', end: '', duration: '', showTime: false, repeat: false };
+  const addFields = makeFields($('addFields'), addState, true, false, true);
 
   // Chạm chip không làm mất con trỏ khỏi ô nhập (đỡ phải bấm lại)
   $('addFields').addEventListener('mousedown', e => {
@@ -1142,6 +1489,12 @@
     const task = { id: Date.now(), text: quick.text, completed: false, ...fieldsToTask(addState) };
     if (quick.start) Object.assign(task, { start: quick.start, end: quick.end || null, duration: null });
     if (quick.duration) Object.assign(task, { start: null, end: null, duration: quick.duration });
+
+    // Bật 🔁 Lặp lại: tạo mẫu lặp mỗi ngày từ ngày đang xem
+    if (addState.repeat) {
+      task.habit = createHabit(task, [0, 1, 2, 3, 4, 5, 6], currentKey).id;
+      addState.repeat = false;
+    }
 
     setTasks([...getTasks(), task]);
 
@@ -1178,6 +1531,8 @@
       <h2>Sửa công việc</h2>
       <input class="text-input" id="editText" type="text" enterkeyhint="done">
       <div id="editFields"></div>
+      <div class="sub-label">🔁 Lặp lại</div>
+      <div id="editRepeat"></div>
       <div class="actions">
         <button class="danger" id="editDel">Xoá</button>
         <button id="editCancel">Huỷ</button>
@@ -1186,9 +1541,51 @@
     $('editText').value = t.text;
     makeFields($('editFields'), st, false);
 
+    // --- Lặp lại: Không / Mỗi ngày / Chọn thứ ---
+    const oldHabit = t.habit && findHabit(t.habit);
+    let days = oldHabit ? [...oldHabit.days] : [];
+    let repMode = !oldHabit ? 'none' : days.length === 7 ? 'daily' : 'custom';
+    const drawRepeat = () => {
+      $('editRepeat').innerHTML = `
+        <div class="seg">
+          <button type="button" data-rep="none" class="${repMode === 'none' ? 'on' : ''}">Không</button>
+          <button type="button" data-rep="daily" class="${repMode === 'daily' ? 'on' : ''}">Mỗi ngày</button>
+          <button type="button" data-rep="custom" class="${repMode === 'custom' ? 'on' : ''}">Chọn thứ</button>
+        </div>
+        ${repMode === 'custom' ? `<div class="wd-chips">${WD_ORDER.map(d =>
+          `<button type="button" class="chip ${days.includes(d) ? 'on' : ''}" data-wd="${d}">${WD[d]}</button>`).join('')}</div>` : ''}
+        ${repMode !== 'none' ? '<p class="hint">Việc sẽ tự có ở các ngày sau. Ngày nào không cần thì bấm × để bỏ riêng ngày đó.</p>' : ''}`;
+    };
+    $('editRepeat').onclick = e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.rep) {
+        repMode = b.dataset.rep;
+        if (repMode === 'daily') days = [0, 1, 2, 3, 4, 5, 6];
+        if (repMode === 'custom' && (!days.length || days.length === 7)) days = [1, 2, 3, 4, 5];
+      }
+      if (b.dataset.wd) {
+        const d = Number(b.dataset.wd);
+        days = days.includes(d) ? days.filter(x => x !== d) : [...days, d];
+      }
+      drawRepeat();
+    };
+    drawRepeat();
+
     const save = () => {
       const text = $('editText').value.trim() || t.text;
-      patchTask(id, { text, ...fieldsToTask(st) });
+      const fields = { text, ...fieldsToTask(st) };
+      if (repMode === 'custom' && !days.length) repMode = 'none';
+      if (repMode === 'none' && oldHabit) {
+        if (!oldHabit.skip.includes(currentKey)) oldHabit.skip.push(currentKey);
+        stopHabit(oldHabit, shiftKey(currentKey, 1));   // giữ việc hôm nay (thành việc thường), bỏ các ngày sau
+        fields.habit = null;
+      } else if (repMode !== 'none' && oldHabit) {
+        updateHabit(oldHabit, { ...fields, days }, currentKey);
+      } else if (repMode !== 'none') {
+        fields.habit = createHabit({ ...t, ...fields }, days, currentKey).id;
+      }
+      patchTask(id, fields);
       closeSheet();
     };
     $('editSave').onclick = save;
@@ -1239,6 +1636,17 @@
       </div>
       <button class="add-cat" id="addCat">＋ Thêm nhóm</button>
 
+      <h3>Việc lặp lại</h3>
+      <div id="habitList">
+        ${habits.filter(h => !h.until || h.until >= todayKey()).map(h => {
+          const cat = findCat(h.cat);
+          return `<div class="habit-row" data-id="${h.id}" ${cat ? `style="--c:${cat.color}"` : ''}>
+                    <div><b>${esc(h.text)}</b><small>🔁 ${daysLabel(h.days)}${h.start ? ' · ' + h.start : ''}</small></div>
+                    <button type="button">Ngừng lặp</button>
+                  </div>`;
+        }).join('') || '<p class="hint">Chưa có. Bấm 🔁 khi thêm việc, hoặc chạm vào một việc → Lặp lại.</p>'}
+      </div>
+
       <h3>Dọn dữ liệu</h3>
       <p class="hint" id="clUsage"></p>
       <div class="cl-dates">
@@ -1261,6 +1669,16 @@
       <div class="actions"><button class="primary" id="settingsDone">Xong</button></div>`;
 
     setupCleanup();
+
+    $('habitList').onclick = e => {
+      const row = e.target.closest('.habit-row');
+      if (!row || !e.target.closest('button')) return;
+      const h = findHabit(Number(row.dataset.id));
+      if (!h || !confirm(`Ngừng lặp “${h.text}” từ hôm nay?\nCác việc đã làm vẫn được giữ lại.`)) return;
+      stopHabit(h, todayKey());
+      render();
+      openSettings();
+    };
 
     // Chủ đề + Ngày/Đêm
     sheet.querySelector('.themes').onclick = e => {
@@ -1340,7 +1758,7 @@
 
   function storageKB() {
     let size = 0;
-    [DATA_KEY, SETTINGS_KEY, NOTES_KEY].forEach(k => {
+    [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY].forEach(k => {
       try { size += new Blob([localStorage.getItem(k) || '']).size; } catch (e) {}
     });
     return Math.max(1, Math.round(size / 1024));
@@ -1382,7 +1800,7 @@
 
     $('resetAll').onclick = () => {
       if (!confirm('Xoá TOÀN BỘ công việc, ghi chú và nhóm màu, đưa app về như mới?\n\nKhông thể khôi phục.')) return;
-      try { [DATA_KEY, SETTINGS_KEY, NOTES_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+      try { [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
       location.replace(location.pathname + location.search);
     };
 
@@ -1408,8 +1826,12 @@
   });
 
   function goTo(key) { currentKey = key; render(); }
-  $('prevBtn').addEventListener('click', () => goTo(shiftKey(currentKey, -1)));
-  $('nextBtn').addEventListener('click', () => goTo(shiftKey(currentKey, 1)));
+  // Nút dưới đáy: lùi/tiến 1 ngày, 1 tuần hoặc 1 tháng tuỳ chế độ xem
+  const step = dir => span === 'week' ? shiftKey(currentKey, 7 * dir)
+                    : span === 'month' ? monthKey(currentKey, dir)
+                    : shiftKey(currentKey, dir);
+  $('prevBtn').addEventListener('click', () => goTo(step(-1)));
+  $('nextBtn').addEventListener('click', () => goTo(step(1)));
   $('todayBtn').addEventListener('click', () => goTo(todayKey()));
   $('datePicker').addEventListener('change', e => { if (e.target.value) goTo(e.target.value); });
 
