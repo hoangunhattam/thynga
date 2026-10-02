@@ -185,7 +185,6 @@
   .hint { margin-top: 10px; font-size: 13px; color: var(--muted); }
 
   /* ========== CHUYỂN CHẾ ĐỘ XEM ========== */
-  .view-tabs { margin-bottom: 12px; }
   .sub-title { font-size: 14px; font-weight: 600; color: var(--muted); margin: 16px 0 8px; }
 
   /* ========== DANH SÁCH ========== */
@@ -603,7 +602,6 @@
 
   /* Ngày / Tuần / Tháng */
   .span-tabs { margin-bottom: 14px; }
-  .range-hint { font-size: 13px; color: var(--muted); text-align: center; margin: -4px 0 12px; }
 
   /* Xem theo tuần */
   .wk-day {
@@ -662,6 +660,50 @@
   .m-more { font-size: 10px; color: var(--muted); line-height: 1.2; }
   .range-sum { margin-top: 16px; text-align: center; font-size: 15px; color: var(--muted); }
 
+  /* Chép việc chưa xong sang ngày sau */
+  .move {
+    width: 38px;
+    height: 58px;
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.1;
+  }
+  .move b { display: block; font-size: 18px; font-weight: 400; }
+  .move.copied { color: var(--green); }
+  .carry-all {
+    width: 100%;
+    height: 46px;
+    margin-top: 10px;
+    border: 1.5px dashed var(--line2);
+    border-radius: 14px;
+    background: none;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--card);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    z-index: 30;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: .92; }
+
+  #editFields [data-act=time] { display: none; }
+  #editFields .time-box { margin-top: 12px; }
+
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -693,9 +735,10 @@
     </div>
   </header>
 
-  <!-- Xem theo Ngày / Tuần / Tháng -->
+  <!-- Chế độ xem: Danh sách / Theo giờ (của 1 ngày) · Tuần · Tháng -->
   <div class="seg span-tabs" id="spanTabs">
-    <button type="button" data-span="day">Ngày</button>
+    <button type="button" data-span="list">Danh sách</button>
+    <button type="button" data-span="timeline">Theo giờ</button>
     <button type="button" data-span="week">Tuần</button>
     <button type="button" data-span="month">Tháng</button>
   </div>
@@ -712,16 +755,11 @@
   <!-- Chọn nhóm + thời gian cho việc sắp thêm (không bắt buộc) -->
   <div id="addFields"></div>
 
-  <!-- Chuyển giữa Danh sách và Dòng thời gian -->
-  <div class="seg view-tabs" id="viewTabs">
-    <button type="button" data-view="list">Danh sách</button>
-    <button type="button" data-view="timeline">Dòng thời gian</button>
-  </div>
-
   <div id="tasksArea">
     <div class="timeline" id="timeline" hidden></div>
     <div class="sub-title" id="unschedTitle" hidden>Chưa xếp giờ</div>
     <ul class="list" id="list"></ul>
+    <button class="carry-all" id="carryAll" hidden></button>
   </div>
 
   <div class="progress">
@@ -760,6 +798,8 @@
   </div>
   <textarea id="noteText" placeholder="Ghi ý tưởng, kế hoạch, cách chia việc…&#10;Dòng đầu tiên sẽ là tiêu đề."></textarea>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <!-- Bảng trượt dùng chung cho "Sửa công việc" và "Cài đặt" -->
 <div class="backdrop" id="backdrop" hidden>
@@ -1089,7 +1129,6 @@
               <input type="number" inputmode="numeric" min="1" data-f="duration" value="${st.duration || ''}" placeholder="Số">
               <span>phút</span>
             </div>` : ''}
-          ${showHint ? `<p class="hint">Mẹo: gõ thẳng “8h-9h30 Soạn bài” hoặc “Đọc sách 45p”.</p>` : ''}
           ${isAdd ? `<button type="button" class="time-done" data-act="done">Xong</button>` : ''}
         </div>` : ''}`;
     }
@@ -1162,7 +1201,11 @@
 
   function renderList(tasks) {
     listEl.innerHTML = '';
+    const nextList = data[shiftKey(currentKey, 1)] || [];
     tasks.forEach(t => {
+      // Nút "→ mai": chỉ hiện với việc chưa xong, không phải việc lặp lại (việc lặp đã tự có ở ngày sau)
+      const canMove = !t.completed && !t.habit;
+      const copied = canMove && nextList.some(x => x.copiedFrom === t.id);
       const cat = findCat(t.cat);
       const li = document.createElement('li');
       li.className = 'item' + (t.completed ? ' done' : '');
@@ -1175,6 +1218,9 @@
           <div class="text">${esc(t.text)}</div>
           ${meta ? `<div class="meta">${meta}</div>` : ''}
         </div>
+        ${canMove ? (copied
+          ? '<button class="move copied" aria-label="Đã chép sang ngày sau"><b>✓</b></button>'
+          : '<button class="move" aria-label="Chép sang ngày sau"><b>→</b></button>') : ''}
         <button class="del" aria-label="Xoá">×</button>`;
       listEl.appendChild(li);
     });
@@ -1272,6 +1318,7 @@
     settings.categories.forEach(c => {
       if (sums.has(c.id)) parts.push(`<span style="--c:${c.color}"><i></i>${esc(c.name)} <b>${fmtDuration(sums.get(c.id))}</b></span>`);
     });
+    if (!parts.length) return '';   // chỉ có việc chưa phân nhóm -> đã có ở dòng "Tổng"
     if (sums.has('')) parts.push(`<span style="--c:#C4C9C6"><i></i>Chưa phân nhóm <b>${fmtDuration(sums.get(''))}</b></span>`);
     return parts.join('');
   }
@@ -1311,7 +1358,7 @@
     $('todayBtn').textContent = 'Tuần này';
     $('todayBtn').hidden = w === 0;
 
-    $('rangeView').innerHTML = '<p class="range-hint">Chạm vào một ngày để xem chi tiết và thêm việc</p>' +
+    $('rangeView').innerHTML =
       keys.map(k => {
         const d = fromKey(k);
         const tasks = sortTasks(data[k] || []);
@@ -1329,7 +1376,7 @@
                         ${t.start ? `<small>${t.start}</small>` : ''}${esc(t.text)}</li>`;
             }).join('')}</ul>
             ${tasks.length > shown.length ? `<p class="wk-more">+ ${tasks.length - shown.length} việc nữa</p>` : ''}`
-            : '<p class="wk-empty">Trống — chạm để thêm việc</p>'}
+            : '<p class="wk-empty">Trống</p>'}
           </div>`;
       }).join('') + rangeSummary(keys);
   }
@@ -1358,7 +1405,6 @@
     $('todayBtn').hidden = m === 0;
 
     $('rangeView').innerHTML = `
-      <p class="range-hint">Chạm vào một ngày để xem chi tiết và thêm việc</p>
       <div class="month">
         <div class="m-row">${WD_ORDER.map(i => `<div class="m-wd">${WD[i]}</div>`).join('')}</div>
         <div class="m-row">
@@ -1380,8 +1426,9 @@
   }
 
   function render() {
+    const active = span === 'day' ? settings.view : span;
     document.querySelectorAll('#spanTabs button').forEach(b =>
-      b.classList.toggle('on', b.dataset.span === span));
+      b.classList.toggle('on', b.dataset.span === active));
     $('dayView').hidden = span !== 'day';
     $('rangeView').hidden = span === 'day';
     $('datePicker').value = currentKey;
@@ -1405,10 +1452,6 @@
     $('prevBtn').textContent = diff === 0 ? '‹ Hôm qua' : '‹ Ngày trước';
     $('nextBtn').textContent = diff === 0 ? 'Ngày mai ›' : 'Ngày sau ›';
     $('todayBtn').hidden = diff === 0;
-
-    // Chế độ xem
-    document.querySelectorAll('#viewTabs button').forEach(b =>
-      b.classList.toggle('on', b.dataset.view === settings.view));
 
     const tasks = getTasks();
     const sorted = sortTasks(tasks);
@@ -1435,20 +1478,59 @@
       ? `${done} / ${tasks.length} hoàn thành` + (total ? ` · Tổng ${fmtDuration(total)}` : '')
       : 'Chưa có công việc';
     renderTotals(tasks);
+
+    // Nút chép tất cả việc chưa xong sang ngày sau
+    const pending = carryCandidates();
+    $('carryAll').hidden = pending.length === 0;
+    $('carryAll').textContent = `→ Chép ${pending.length} việc chưa xong sang ${nextDayLabel()}`;
   }
 
-  $('viewTabs').addEventListener('click', e => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    settings.view = b.dataset.view;
-    saveSettings();
+  /* ---------- CHÉP VIỆC CHƯA XONG SANG NGÀY SAU ----------
+     Việc ở ngày hiện tại giữ nguyên; ngày sau có thêm một bản sao (chưa tick).
+     Bản sao nhớ "copiedFrom" để không chép trùng 2 lần. */
+  function nextDayLabel() {
+    const next = shiftKey(currentKey, 1);
+    return next === shiftKey(todayKey(), 1) ? 'ngày mai' : 'ngày ' + shortDay(next);
+  }
+
+  function carryCandidates() {
+    const nextList = data[shiftKey(currentKey, 1)] || [];
+    return getTasks().filter(t => !t.completed && !t.habit && !nextList.some(x => x.copiedFrom === t.id));
+  }
+
+  function copyToNextDay(tasks) {
+    const next = shiftKey(currentKey, 1);
+    ensureHabits(next);
+    const list = data[next] || [];
+    tasks.forEach(t => {
+      if (list.some(x => x.copiedFrom === t.id)) return;
+      list.push({ id: uid(), text: t.text, completed: false, cat: t.cat,
+                  start: t.start, end: t.end, duration: t.duration, copiedFrom: t.id });
+    });
+    data[next] = list;
+    saveData();
     render();
-  });
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+  }
 
   $('spanTabs').addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
-    span = b.dataset.span;
+    if (b.dataset.span === 'list' || b.dataset.span === 'timeline') {
+      span = 'day';
+      settings.view = b.dataset.span;
+      saveSettings();
+    } else {
+      span = b.dataset.span;
+    }
     render();
     window.scrollTo(0, 0);
   });
@@ -1554,7 +1636,7 @@
         </div>
         ${repMode === 'custom' ? `<div class="wd-chips">${WD_ORDER.map(d =>
           `<button type="button" class="chip ${days.includes(d) ? 'on' : ''}" data-wd="${d}">${WD[d]}</button>`).join('')}</div>` : ''}
-        ${repMode !== 'none' ? '<p class="hint">Việc sẽ tự có ở các ngày sau. Ngày nào không cần thì bấm × để bỏ riêng ngày đó.</p>' : ''}`;
+`;
     };
     $('editRepeat').onclick = e => {
       const b = e.target.closest('button');
@@ -1653,7 +1735,6 @@
         <label>Từ ngày<input type="date" id="clFrom"></label>
         <label>Đến ngày<input type="date" id="clTo"></label>
       </div>
-      <p class="hint">Để trống “Từ ngày” = từ đầu · để trống “Đến ngày” = đến hết.</p>
       <div class="chips" style="margin-top:10px">
         <button type="button" class="chip" id="clBeforeToday">Trước hôm nay</button>
         <button type="button" class="chip" id="clAll">Tất cả</button>
@@ -1822,7 +1903,20 @@
       patchTask(id, { completed: !t.completed });
     }
     else if (e.target.closest('.del')) deleteTask(id);
+    else if (e.target.closest('.move')) {
+      if (e.target.closest('.move.copied')) return toast('Việc này đã có ở ' + nextDayLabel());
+      const label = nextDayLabel();
+      copyToNextDay(getTasks().filter(x => x.id === id));
+      toast('Đã chép sang ' + label + ' ✓');
+    }
     else openEdit(id);
+  });
+
+  $('carryAll').addEventListener('click', () => {
+    const items = carryCandidates();
+    const label = nextDayLabel();
+    copyToNextDay(items);
+    toast(`Đã chép ${items.length} việc sang ${label} ✓`);
   });
 
   function goTo(key) { currentKey = key; render(); }
