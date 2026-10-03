@@ -185,7 +185,6 @@
   .hint { margin-top: 10px; font-size: 13px; color: var(--muted); }
 
   /* ========== CHUYỂN CHẾ ĐỘ XEM ========== */
-  .sub-title { font-size: 14px; font-weight: 600; color: var(--muted); margin: 16px 0 8px; }
 
   /* ========== DANH SÁCH ========== */
   .list {
@@ -245,69 +244,6 @@
     opacity: .6;
     font-size: 26px;
     line-height: 1;
-  }
-
-  /* ========== DÒNG THỜI GIAN ========== */
-  .timeline {
-    position: relative;
-    background: var(--card);
-    box-shadow: var(--shadow);
-    border-radius: 18px;
-    overflow: hidden;
-  }
-  .hour {
-    position: absolute;
-    left: 0; right: 0;
-    border-top: 1px solid var(--line);
-  }
-  .hour span {
-    position: absolute;
-    left: 8px;
-    top: 2px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .block {
-    position: absolute;
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 4px 6px;
-    overflow: hidden;
-    border-radius: 8px;
-    border-left: 4px solid var(--c, #9AA09C);
-    background: color-mix(in srgb, var(--c, #9AA09C) 16%, var(--card));
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1.3;
-  }
-  .block .check { width: 26px; height: 26px; }
-  .block .check span { width: 22px; height: 22px; }
-  .block .check svg { width: 12px; height: 12px; }
-  .block .b-text { font-weight: 600; word-break: break-word; color: var(--c, var(--text)); }
-  .block .b-time { font-size: 12px; color: var(--muted); }
-  .block.done { opacity: .55; }
-  .block.done .b-text { text-decoration: line-through; }
-  .now {
-    position: absolute;
-    left: 44px; right: 0;
-    border-top: 2px solid var(--danger);
-    z-index: 2;
-    pointer-events: none;
-  }
-  .now::before {
-    content: '';
-    position: absolute;
-    left: -5px; top: -6px;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--danger);
-  }
-  .tl-empty {
-    padding: 22px 16px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 15px;
   }
 
   /* ========== TIẾN ĐỘ + TỔNG THEO NHÓM ========== */
@@ -704,6 +640,82 @@
   #editFields [data-act=time] { display: none; }
   #editFields .time-box { margin-top: 12px; }
 
+  /* ========== KẾ HOẠCH TUẦN ========== */
+  .plan {
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 18px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .plan-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .plan-h b { font-size: 16px; }
+  .plan-h span, .g-count { font-size: 13px; color: var(--muted); }
+  .goal { border-top: 1px solid var(--line); padding: 10px 0; }
+  .goal:first-of-type { border-top: none; }
+  .g-head { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .g-head .arrow { width: 16px; color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .g-title { flex: 1; min-width: 0; font-weight: 600; color: var(--c, var(--text)); word-break: break-word; }
+  .g-bar { height: 5px; background: var(--line); border-radius: 3px; margin: 6px 0 0 24px; overflow: hidden; }
+  .g-bar i { display: block; height: 100%; background: var(--c, var(--green)); border-radius: 3px; }
+  .p-item { display: flex; align-items: center; gap: 6px; padding: 2px 0 2px 18px; }
+  .p-ck {
+    width: 40px; height: 40px; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: none; border: none;
+  }
+  .p-ck span {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--line2); background: var(--card);
+    display: grid; place-items: center; color: var(--on-accent);
+  }
+  .p-ck svg { width: 12px; height: 12px; opacity: 0; }
+  .p-item.done .p-ck span { background: var(--green); border-color: var(--green); }
+  .p-item.done .p-ck svg { opacity: 1; }
+  .p-text { flex: 1; min-width: 0; font-size: 15px; word-break: break-word; cursor: text; }
+  .p-item.done .p-text { opacity: .5; text-decoration: line-through; }
+  .p-edit {
+    flex: 1; min-width: 0; height: 36px; padding: 0 8px; font-size: 16px;
+    border: 1.5px solid var(--green); border-radius: 8px; background: var(--card);
+  }
+  .p-day {
+    flex-shrink: 0; height: 30px; padding: 0 10px;
+    border: 1.5px solid var(--line); border-radius: 15px;
+    background: var(--card); color: var(--muted); font-size: 13px;
+  }
+  .p-day.on {
+    border-color: var(--green); color: var(--green); font-weight: 600;
+    background: color-mix(in srgb, var(--green) 10%, var(--card));
+  }
+  .p-del { width: 30px; height: 36px; flex-shrink: 0; border: none; background: none; color: var(--muted); opacity: .6; font-size: 20px; }
+  .p-wd { display: flex; gap: 5px; padding: 4px 0 8px 64px; }
+  .p-wd button {
+    flex: 1; height: 32px; padding: 0;
+    border: 1.5px solid var(--line); border-radius: 16px; background: var(--card); font-size: 12px;
+  }
+  .p-wd button.on { border-color: var(--green); color: var(--green); font-weight: 600; }
+  .p-add {
+    width: 100%; height: 40px; margin-top: 4px; padding: 0 12px; font-size: 16px;
+    border: 1.5px dashed var(--line2); border-radius: 10px; background: none;
+  }
+  .p-add:focus { outline: none; border-style: solid; border-color: var(--green); }
+  .goal .p-add { width: calc(100% - 24px); margin-left: 24px; }
+  .g-edit { margin: 6px 0 0 24px; border: none; background: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
+  .plan .carry-all { margin-top: 12px; }
+  .ptag {
+    display: inline-block; max-width: 100%;
+    padding: 0 7px; border-radius: 8px;
+    background: color-mix(in srgb, var(--green) 12%, var(--card)); color: var(--green);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom;
+  }
+  .plan-banner {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-bottom: 12px; padding: 10px 14px;
+    border: none; border-radius: 14px; background: var(--card); box-shadow: var(--shadow);
+    font-size: 14px; text-align: left; color: var(--text);
+  }
+  .plan-banner span { color: var(--green); font-weight: 600; flex-shrink: 0; }
+
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -737,8 +749,7 @@
 
   <!-- Chế độ xem: Danh sách / Theo giờ (của 1 ngày) · Tuần · Tháng -->
   <div class="seg span-tabs" id="spanTabs">
-    <button type="button" data-span="list">Danh sách</button>
-    <button type="button" data-span="timeline">Theo giờ</button>
+    <button type="button" data-span="day">Ngày</button>
     <button type="button" data-span="week">Tuần</button>
     <button type="button" data-span="month">Tháng</button>
   </div>
@@ -748,6 +759,7 @@
 
   <!-- Xem theo ngày -->
   <div id="dayView">
+  <button class="plan-banner" id="planBanner" hidden></button>
   <form class="add" id="addForm" autocomplete="off">
     <input id="newTask" type="text" placeholder="＋ Thêm công việc" enterkeyhint="done" autofocus>
     <button type="submit" aria-label="Thêm">＋</button>
@@ -756,8 +768,6 @@
   <div id="addFields"></div>
 
   <div id="tasksArea">
-    <div class="timeline" id="timeline" hidden></div>
-    <div class="sub-title" id="unschedTitle" hidden>Chưa xếp giờ</div>
     <ul class="list" id="list"></ul>
     <button class="carry-all" id="carryAll" hidden></button>
   </div>
@@ -820,6 +830,7 @@
   const SETTINGS_KEY = 'checklist-settings-v1';
   const NOTES_KEY = 'checklist-notes-v1';
   const HABITS_KEY = 'checklist-habits-v1';
+  const PLANS_KEY = 'checklist-plans-v1';
 
   // Màu nhóm mặc định: tông dịu, vẫn đủ đậm để đọc chữ
   const DEFAULT_CATEGORIES = [
@@ -863,7 +874,9 @@
   let notes = load(NOTES_KEY, []);
   // Việc lặp lại: [{ id, text, cat, start, end, duration, days: [0..6], from, until, skip: [] }]
   let habits = load(HABITS_KEY, []);
-  settings.view = settings.view || 'list';
+  // Kế hoạch tuần: { "2026-09-28" (Thứ Hai): [ { id, title, cat, items: [ { id, text, done, day } ] } ] }
+  // day = ngày đã xếp (việc nhỏ khi đó cũng nằm trong danh sách ngày, nối bằng task.planItem)
+  let plans = load(PLANS_KEY, {});
 
   // Nâng cấp một lần: đổi màu nhóm mặc định cũ (đậm) sang tông dịu, bật chủ đề Xanh sage
   if (settings.v !== 2) {
@@ -897,6 +910,7 @@
   const saveSettings = () => store(SETTINGS_KEY, settings);
   const saveNotes = () => store(NOTES_KEY, notes);
   const saveHabits = () => store(HABITS_KEY, habits);
+  const savePlans = () => store(PLANS_KEY, plans);
   const findCat = id => settings.categories.find(c => c.id === id);
 
   /* =========================================================
@@ -993,6 +1007,8 @@
     const t = getTasks().find(x => x.id === id);
     const h = t && t.habit && findHabit(t.habit);
     if (h && !h.skip.includes(currentKey)) { h.skip.push(currentKey); saveHabits(); }
+    const pi = t && t.planItem && findPlanItem(t.planItem);
+    if (pi) { pi.it.day = null; savePlans(); }
     setTasks(getTasks().filter(x => x.id !== id));
   }
 
@@ -1172,7 +1188,6 @@
      ========================================================= */
   const $ = id => document.getElementById(id);
   const listEl = $('list');
-  const timelineEl = $('timeline');
 
   const CHECK_SVG =
     '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
@@ -1186,6 +1201,8 @@
     else if (t.duration) parts.push(fmtDuration(t.duration));
     const h = t.habit && findHabit(t.habit);
     if (h) parts.unshift('🔁 ' + daysLabel(h.days));
+    const pi = t.planItem && findPlanItem(t.planItem);
+    if (pi) parts.push(`<span class="ptag">📌 ${esc(pi.g.title)}</span>`);
     return parts.join(' · ');
   }
 
@@ -1226,85 +1243,6 @@
     });
   }
 
-  /* ---------- Dòng thời gian ----------
-     Mỗi giờ cao 64px. Việc chỉ có giờ bắt đầu được vẽ dài 30 phút.
-     Việc trùng giờ được chia thành nhiều cột nằm cạnh nhau. */
-  const HOUR_PX = 64;
-  const PX = HOUR_PX / 60;
-  const AXIS = 48;             // chỗ cho nhãn giờ bên trái
-
-  function renderTimeline(timed) {
-    // Tính vị trí từng việc (phút bắt đầu s, kết thúc e)
-    const items = timed.map(t => {
-      const s = toMin(t.start);
-      let e = t.end ? toMin(t.end) : s + (t.duration || 30);
-      if (e <= s) e = t.end ? 1440 : s + 30;   // qua nửa đêm: cắt ở 24:00
-      return { t, s, e: Math.min(e, 1440) };
-    }).sort((a, b) => a.s - b.s || a.e - b.e);
-
-    // Khung giờ hiển thị: tối thiểu 7:00–21:00, mở rộng theo công việc
-    let fromH = 7, toH = 21;
-    items.forEach(i => { fromH = Math.min(fromH, Math.floor(i.s / 60)); toH = Math.max(toH, Math.ceil(i.e / 60)); });
-    const isToday = currentKey === todayKey();
-    const now = new Date();
-    const nowMin = now.getHours() * 60 + now.getMinutes();
-    if (isToday) { fromH = Math.min(fromH, now.getHours()); toH = Math.max(toH, now.getHours() + 1); }
-    toH = Math.min(toH, 24);
-
-    // Chia cột cho các việc trùng giờ
-    let group = [], groupEnd = -1;
-    const flush = () => {
-      const laneEnds = [];
-      group.forEach(i => {
-        let lane = laneEnds.findIndex(end => end <= i.s);
-        if (lane === -1) { lane = laneEnds.length; laneEnds.push(0); }
-        laneEnds[lane] = i.e;
-        i.lane = lane;
-      });
-      group.forEach(i => i.lanes = laneEnds.length);
-      group = [];
-    };
-    items.forEach(i => {
-      if (group.length && i.s >= groupEnd) flush();
-      group.push(i);
-      groupEnd = Math.max(groupEnd, i.e);
-    });
-    flush();
-
-    let html = '';
-    for (let h = fromH; h <= toH; h++) {
-      html += `<div class="hour" style="top:${(h - fromH) * HOUR_PX}px"><span>${pad(h)}:00</span></div>`;
-    }
-    items.forEach(i => {
-      const cat = findCat(i.t.cat);
-      const top = (i.s - fromH * 60) * PX;
-      const height = Math.max((i.e - i.s) * PX, 30) - 2;
-      const width = `(100% - ${AXIS + 6}px) / ${i.lanes}`;
-      const time = i.t.end ? `${i.t.start} – ${i.t.end}` : i.t.duration ? `${i.t.start} · ${fmtDuration(i.t.duration)}` : i.t.start;
-      html += `
-        <div class="block ${i.t.completed ? 'done' : ''}" data-id="${i.t.id}"
-             style="top:${top + 1}px; height:${height}px;
-                    left:calc(${AXIS}px + ${width} * ${i.lane}); width:calc(${width} - 4px);
-                    ${cat ? `--c:${cat.color}` : ''}">
-          ${CHECK_BTN}
-          <div class="body" style="padding:0">
-            <div class="b-text">${esc(i.t.text)}</div>
-            <div class="b-time">${time}</div>
-          </div>
-        </div>`;
-    });
-    if (isToday && nowMin >= fromH * 60 && nowMin <= toH * 60) {
-      html += `<div class="now" style="top:${(nowMin - fromH * 60) * PX}px"></div>`;
-    }
-    if (!items.length) {
-      html += `<div class="tl-empty" style="position:absolute;left:${AXIS}px;right:0;top:${HOUR_PX}px">
-                 Chưa có việc nào có giờ bắt đầu.<br>Thêm giờ bằng nút ⏱ hoặc gõ “8h-9h Soạn bài”.
-               </div>`;
-    }
-    timelineEl.style.height = (toH - fromH) * HOUR_PX + 'px';
-    timelineEl.innerHTML = html;
-  }
-
   // Tổng thời gian theo từng nhóm
   function totalsHTML(tasks) {
     const sums = new Map();
@@ -1323,6 +1261,231 @@
     return parts.join('');
   }
   const renderTotals = tasks => { $('totals').innerHTML = totalsHTML(tasks); };
+
+  /* ---------- KẾ HOẠCH TUẦN ----------
+     Mục tiêu lớn của tuần -> chia thành việc nhỏ.
+     Mỗi việc nhỏ: tick luôn, hoặc xếp vào 1 ngày (khi đó nó cũng hiện trong danh sách ngày đó).
+     Tick / sửa tên / xoá ở ngày hay ở kế hoạch đều đồng bộ với nhau. */
+  const openGoals = new Set();     // mục tiêu đang mở
+  let pickerFor = null;            // việc nhỏ đang mở hàng chọn ngày
+  let editingItem = null;          // việc nhỏ đang sửa tên
+  let refocus = null;              // ô nhập cần đặt lại con trỏ sau khi vẽ lại
+
+  function findPlanItem(itemId) {
+    for (const wk in plans) for (const g of plans[wk]) {
+      const it = g.items.find(i => i.id === itemId);
+      if (it) return { wk, g, it };
+    }
+    return null;
+  }
+  const findGoal = (wk, gid) => (plans[wk] || []).find(g => g.id === gid);
+
+  // Gỡ việc nhỏ khỏi ngày đã xếp
+  function unschedule(it) {
+    if (!it.day) return;
+    const kept = (data[it.day] || []).filter(t => t.planItem !== it.id);
+    if (kept.length) data[it.day] = kept; else delete data[it.day];
+    it.day = null;
+  }
+  // Xếp việc nhỏ vào ngày `day`
+  function schedule(g, it, day) {
+    unschedule(it);
+    data[day] = [...(data[day] || []), { id: uid(), text: it.text, completed: it.done, cat: g.cat,
+                                          start: null, end: null, duration: null, planItem: it.id }];
+    it.day = day;
+  }
+  const taskOf = it => it.day && (data[it.day] || []).find(t => t.planItem === it.id);
+
+  function savePlanAll(wk) {
+    if (plans[wk] && !plans[wk].length) delete plans[wk];
+    savePlans();
+    saveData();
+    render();
+    if (refocus) {
+      const el = $('rangeView').querySelector(refocus);
+      if (el) el.focus();
+      refocus = null;
+    }
+  }
+
+  // Hiện nút "chuyển sang tuần sau" từ Thứ Sáu của tuần này, hoặc khi xem tuần đã qua
+  function canCarry(wk) {
+    const thisWeek = weekStart(todayKey());
+    return wk < thisWeek || (wk === thisWeek && [5, 6, 0].includes(new Date().getDay()));
+  }
+
+  function planHTML(wk, keys) {
+    const goals = plans[wk] || [];
+    const all = goals.flatMap(g => g.items);
+    const left = all.filter(i => !i.done).length;
+    return `
+      <div class="plan" data-wk="${wk}">
+        <div class="plan-h"><b>📌 Kế hoạch tuần</b>${all.length ? `<span>${all.length - left}/${all.length} việc nhỏ</span>` : ''}</div>
+        ${goals.map(g => {
+          const cat = findCat(g.cat);
+          const done = g.items.filter(i => i.done).length;
+          const open = openGoals.has(g.id);
+          return `
+            <div class="goal" data-g="${g.id}" ${cat ? `style="--c:${cat.color}"` : ''}>
+              <div class="g-head" data-act="toggle">
+                <span class="arrow">${open ? '▼' : '▶'}</span>
+                <span class="g-title">${esc(g.title)}</span>
+                <span class="g-count">${g.items.length ? `${done}/${g.items.length}` : ''}</span>
+              </div>
+              ${g.items.length ? `<div class="g-bar"><i style="width:${done / g.items.length * 100}%"></i></div>` : ''}
+              ${open ? g.items.map(it => `
+                <div class="p-item ${it.done ? 'done' : ''}" data-i="${it.id}">
+                  <button class="p-ck" data-act="tick" aria-label="Hoàn thành"><span>${CHECK_SVG}</span></button>
+                  ${editingItem === it.id
+                    ? `<input class="p-edit" data-act="rename" value="${esc(it.text)}" enterkeyhint="done">`
+                    : `<span class="p-text" data-act="edit">${esc(it.text)}</span>`}
+                  <button class="p-day ${it.day ? 'on' : ''}" data-act="pick">${it.day ? WD[fromKey(it.day).getDay()] : '＋ ngày'}</button>
+                  <button class="p-del" data-act="del" aria-label="Xoá">×</button>
+                </div>
+                ${pickerFor === it.id ? `<div class="p-wd" data-i="${it.id}">${keys.map(k =>
+                  `<button data-act="setday" data-day="${k}" class="${it.day === k ? 'on' : ''}">${WD[fromKey(k).getDay()]}</button>`).join('')}</div>` : ''}
+              `).join('') + `
+                <input class="p-add" data-act="additem" placeholder="＋ Thêm việc nhỏ…" enterkeyhint="done">
+                <button class="g-edit" data-act="editgoal">Sửa / xoá mục tiêu</button>` : ''}
+            </div>`;
+        }).join('')}
+        <input class="p-add goal-add" data-act="addgoal" placeholder="＋ Thêm mục tiêu tuần…" enterkeyhint="done">
+        ${left && canCarry(wk) ? `<button class="carry-all" data-act="carry">→ Chuyển ${left} việc chưa xong sang tuần sau</button>` : ''}
+      </div>`;
+  }
+
+  function onPlanClick(e) {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    const act = btn.dataset.act;
+    const wk = e.target.closest('.plan').dataset.wk;
+    const gEl = e.target.closest('.goal');
+    const g = gEl && findGoal(wk, Number(gEl.dataset.g));
+    const iEl = e.target.closest('[data-i]');
+    const it = g && iEl && g.items.find(i => i.id === Number(iEl.dataset.i));
+
+    if (act === 'toggle') {
+      openGoals.has(g.id) ? openGoals.delete(g.id) : openGoals.add(g.id);
+      return render();
+    }
+    if (act === 'tick') {
+      it.done = !it.done;
+      const t = taskOf(it);
+      if (t) t.completed = it.done;
+      return savePlanAll(wk);
+    }
+    if (act === 'edit') { editingItem = it.id; refocus = '.p-edit'; return savePlanAll(wk); }
+    if (act === 'pick') { pickerFor = pickerFor === it.id ? null : it.id; return render(); }
+    if (act === 'setday') {
+      const day = btn.dataset.day;
+      if (it.day === day) unschedule(it); else schedule(g, it, day);   // chạm lại ngày đang chọn = bỏ xếp
+      pickerFor = null;
+      return savePlanAll(wk);
+    }
+    if (act === 'del') {
+      unschedule(it);
+      g.items = g.items.filter(i => i !== it);
+      return savePlanAll(wk);
+    }
+    if (act === 'editgoal') return openGoalSheet(wk, g);
+    if (act === 'carry') return carryWeek(wk);
+  }
+
+  // Nhập mục tiêu / việc nhỏ / sửa tên: Enter để lưu
+  $('rangeView').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.closest('.plan')) return;
+    e.preventDefault();
+    const act = e.target.dataset.act;
+    const wk = e.target.closest('.plan').dataset.wk;
+    const gEl = e.target.closest('.goal');
+    const g = gEl && findGoal(wk, Number(gEl.dataset.g));
+    const text = e.target.value.trim();
+
+    if (act === 'addgoal' && text) {
+      const ng = { id: uid(), title: text, cat: null, items: [] };
+      plans[wk] = [...(plans[wk] || []), ng];
+      openGoals.add(ng.id);
+      refocus = `.goal[data-g="${ng.id}"] .p-add`;          // gõ việc nhỏ ngay
+    }
+    if (act === 'additem' && text) {
+      g.items.push({ id: uid(), text, done: false, day: null });
+      refocus = `.goal[data-g="${g.id}"] .p-add`;           // gõ tiếp việc nhỏ khác
+    }
+    if (act === 'rename') {
+      const it = g.items.find(i => i.id === Number(e.target.closest('[data-i]').dataset.i));
+      if (text) {
+        it.text = text;
+        const t = taskOf(it);
+        if (t) t.text = text;
+      }
+      editingItem = null;
+    }
+    savePlanAll(wk);
+  });
+  // Sửa tên: chạm ra ngoài cũng lưu
+  $('rangeView').addEventListener('focusout', e => {
+    if (e.target.dataset.act !== 'rename') return;
+    e.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  });
+
+  // Sửa tên / nhóm màu / xoá mục tiêu
+  function openGoalSheet(wk, g) {
+    const st = { cat: g.cat };
+    sheet.innerHTML = `
+      <h2>Mục tiêu tuần</h2>
+      <input class="text-input" id="goalText" type="text" enterkeyhint="done">
+      <div class="chips" id="goalCats">${settings.categories.map(c =>
+        `<button type="button" class="chip ${st.cat === c.id ? 'on' : ''}" data-cat="${c.id}" style="--c:${c.color}"><i></i>${esc(c.name)}</button>`).join('')}</div>
+      <div class="actions">
+        <button class="danger" id="goalDel">Xoá</button>
+        <button id="goalCancel">Huỷ</button>
+        <button class="primary" id="goalSave">Lưu</button>
+      </div>`;
+    $('goalText').value = g.title;
+    $('goalCats').onclick = e => {
+      const b = e.target.closest('[data-cat]');
+      if (!b) return;
+      st.cat = st.cat === b.dataset.cat ? null : b.dataset.cat;
+      $('goalCats').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x.dataset.cat === st.cat));
+    };
+    $('goalSave').onclick = () => {
+      g.title = $('goalText').value.trim() || g.title;
+      g.cat = st.cat;
+      g.items.forEach(it => { const t = taskOf(it); if (t) t.cat = g.cat; });   // việc đã xếp ngày đổi màu theo
+      closeSheet();
+      savePlanAll(wk);
+    };
+    $('goalCancel').onclick = closeSheet;
+    $('goalDel').onclick = () => {
+      if (!confirm(`Xoá mục tiêu “${g.title}” và ${g.items.length} việc nhỏ của nó?`)) return;
+      g.items.forEach(unschedule);
+      plans[wk] = plans[wk].filter(x => x !== g);
+      closeSheet();
+      savePlanAll(wk);
+    };
+    openSheet();
+  }
+
+  // Chuyển việc nhỏ chưa xong sang tuần sau (gỡ khỏi ngày đã xếp ở tuần này)
+  function carryWeek(wk) {
+    const next = shiftKey(wk, 7);
+    const nextGoals = plans[next] || [];
+    let count = 0;
+    plans[wk].forEach(g => {
+      const left = g.items.filter(i => !i.done);
+      if (!left.length) return;
+      left.forEach(unschedule);
+      let ng = nextGoals.find(x => x.from === g.id);
+      if (!ng) { ng = { id: uid(), title: g.title, cat: g.cat, from: g.id, items: [] }; nextGoals.push(ng); }
+      left.forEach(i => ng.items.push({ id: uid(), text: i.text, done: false, day: null }));
+      g.items = g.items.filter(i => i.done);
+      count += left.length;
+    });
+    plans[wk] = plans[wk].filter(g => g.items.length);
+    plans[next] = nextGoals;
+    savePlanAll(wk);
+    toast(`Đã chuyển ${count} việc sang tuần sau ✓`);
+  }
 
   /* ---------- Tuần / Tháng ---------- */
   let span = 'day';   // 'day' | 'week' | 'month' — mỗi lần mở app luôn vào xem Ngày
@@ -1358,7 +1521,7 @@
     $('todayBtn').textContent = 'Tuần này';
     $('todayBtn').hidden = w === 0;
 
-    $('rangeView').innerHTML =
+    $('rangeView').innerHTML = planHTML(start, keys) +
       keys.map(k => {
         const d = fromKey(k);
         const tasks = sortTasks(data[k] || []);
@@ -1426,9 +1589,8 @@
   }
 
   function render() {
-    const active = span === 'day' ? settings.view : span;
     document.querySelectorAll('#spanTabs button').forEach(b =>
-      b.classList.toggle('on', b.dataset.span === active));
+      b.classList.toggle('on', b.dataset.span === span));
     $('dayView').hidden = span !== 'day';
     $('rangeView').hidden = span === 'day';
     $('datePicker').value = currentKey;
@@ -1437,6 +1599,12 @@
 
     // Tự thêm việc lặp lại cho ngày đang xem
     if (ensureHabits(currentKey)) saveData();
+
+    // Dòng nhắc: kế hoạch tuần còn việc nhỏ chưa xếp ngày
+    const unplanned = (plans[weekStart(currentKey)] || [])
+      .flatMap(g => g.items).filter(i => !i.done && !i.day).length;
+    $('planBanner').hidden = unplanned === 0;
+    $('planBanner').innerHTML = `<div>📌 Kế hoạch tuần: <b>${unplanned} việc chưa xếp ngày</b></div><span>Xem ›</span>`;
 
     const diff = daysFromToday(currentKey);
     const d = fromKey(currentKey);
@@ -1456,18 +1624,7 @@
     const tasks = getTasks();
     const sorted = sortTasks(tasks);
 
-    if (settings.view === 'timeline') {
-      const timed = sorted.filter(t => t.start);
-      const untimed = sorted.filter(t => !t.start);
-      timelineEl.hidden = false;
-      renderTimeline(timed);
-      renderList(untimed);
-      $('unschedTitle').hidden = untimed.length === 0;
-    } else {
-      timelineEl.hidden = true;
-      $('unschedTitle').hidden = true;
-      renderList(sorted);
-    }
+    renderList(sorted);
 
     // Tiến độ + tổng thời gian
     const done = tasks.filter(t => t.completed).length;
@@ -1524,19 +1681,14 @@
   $('spanTabs').addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
-    if (b.dataset.span === 'list' || b.dataset.span === 'timeline') {
-      span = 'day';
-      settings.view = b.dataset.span;
-      saveSettings();
-    } else {
-      span = b.dataset.span;
-    }
+    span = b.dataset.span;
     render();
     window.scrollTo(0, 0);
   });
 
   // Chạm một ngày trong Tuần/Tháng -> mở ngày đó
   $('rangeView').addEventListener('click', e => {
+    if (e.target.closest('.plan')) return onPlanClick(e);
     const el = e.target.closest('[data-key]');
     if (!el) return;
     span = 'day';
@@ -1544,10 +1696,6 @@
     window.scrollTo(0, 0);
   });
 
-  // Vạch "bây giờ" trên dòng thời gian tự dịch chuyển mỗi phút
-  setInterval(() => {
-    if (span === 'day' && settings.view === 'timeline' && $('backdrop').hidden && !$('planView').hidden) render();
-  }, 60000);
 
   /* =========================================================
      7. THÊM VIỆC
@@ -1667,6 +1815,8 @@
       } else if (repMode !== 'none') {
         fields.habit = createHabit({ ...t, ...fields }, days, currentKey).id;
       }
+      const pi = t.planItem && findPlanItem(t.planItem);
+      if (pi) { pi.it.text = fields.text; savePlans(); }
       patchTask(id, fields);
       closeSheet();
     };
@@ -1839,7 +1989,7 @@
 
   function storageKB() {
     let size = 0;
-    [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY].forEach(k => {
+    [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY, PLANS_KEY].forEach(k => {
       try { size += new Blob([localStorage.getItem(k) || '']).size; } catch (e) {}
     });
     return Math.max(1, Math.round(size / 1024));
@@ -1881,7 +2031,7 @@
 
     $('resetAll').onclick = () => {
       if (!confirm('Xoá TOÀN BỘ công việc, ghi chú và nhóm màu, đưa app về như mới?\n\nKhông thể khôi phục.')) return;
-      try { [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+      try { [DATA_KEY, SETTINGS_KEY, NOTES_KEY, HABITS_KEY, PLANS_KEY].forEach(k => localStorage.removeItem(k)); } catch (e) {}
       location.replace(location.pathname + location.search);
     };
 
@@ -1892,14 +2042,16 @@
   const fmtDay = key => key.split('-').reverse().join('/');
 
   /* =========================================================
-     9. SỰ KIỆN DANH SÁCH / DÒNG THỜI GIAN & ĐỔI NGÀY
+     9. SỰ KIỆN DANH SÁCH & ĐỔI NGÀY
      ========================================================= */
   $('tasksArea').addEventListener('click', e => {
-    const el = e.target.closest('.item, .block');
+    const el = e.target.closest('.item');
     if (!el) return;
     const id = Number(el.dataset.id);
     if (e.target.closest('.check')) {
       const t = getTasks().find(x => x.id === id);
+      const pi = t.planItem && findPlanItem(t.planItem);
+      if (pi) { pi.it.done = !t.completed; savePlans(); }
       patchTask(id, { completed: !t.completed });
     }
     else if (e.target.closest('.del')) deleteTask(id);
@@ -1910,6 +2062,12 @@
       toast('Đã chép sang ' + label + ' ✓');
     }
     else openEdit(id);
+  });
+
+  $('planBanner').addEventListener('click', () => {
+    span = 'week';
+    render();
+    window.scrollTo(0, 0);
   });
 
   $('carryAll').addEventListener('click', () => {
